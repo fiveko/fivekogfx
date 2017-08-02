@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FivekoGFX Test Page</title>
+
+	<!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	
+	<style>
+		.input-group-addon.title {
+			min-width:120px;
+		}
+
+		.input-group-addon.value {
+			width:60px;
+		}
+	</style>
+</head>
+<body>
+
+	<hr></hr>
+	<h2 id="demoapp" style="text-align: center;">FivekoGFX Demo App</h2>
+	<hr></hr>
+	
+	<div style="text-align: center;" data-role="preview" data-type="webgl" data-source="" data-callback="initPreview">
+		<div id="controls"></div>
+		<div id="log">Sigma: 3</div>
+	</div>
+	<hr></hr>
+	<div style="text-align: center;">
+		<b><a href="http://fiveko.com/tutorials/dip" target="_blank">Image Processing Tutorials</a></b>
+	</div>
+	<!-- ====================== JavaScript =================== -->
+	<script src="./preview.min.js"></script>
+	<script src="../src/fivekogfx.min.js"></script>
+	
+	<script>
+	
+		function initPreview(source, canvas){
+			var fivekogfx = new FivekoGFX();
+			var controls = document.getElementById("controls");
+			
+			function reset(){
+				redraw();
+				fivekogfx.load(source/*canvas*/);
+			}
+			
+			addFilter(new Filter("Box Blur", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(sigma){
+				fivekogfx.blur(sigma);
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Gaussian Blur", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(sigma){
+				fivekogfx.gauss(sigma);
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Sobel", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Gauss Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(sigma){
+				fivekogfx.blur(sigma);
+				fivekogfx.sobel();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("HoughCircle", function(){
+				this.add(createSlider(controls, "sizeSlider", "Size", 20, 0, 100, 5, this.update.bind(this)));
+				this.add(createSlider(controls, "sigmaSlider", "SigmaSobel", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(radius, sigma){
+				fivekogfx.blur(sigma);
+				fivekogfx.sobel();
+				fivekogfx.houghCircle(radius);
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("SymmenticNN", function(){
+				this.add(createSlider(controls, "sizeSlider", "Size", 3, 0, 10, 1, this.update.bind(this)));
+				this.add(createSlider(controls, "countSlider", "Count", 1, 0, 10, 1, this.update.bind(this)));
+			}, function(size, count){
+				fivekogfx.symmetricnn(parseInt(size), parseInt(count));
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+		}
+	</script>
+</body>
+</html>
