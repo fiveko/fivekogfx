@@ -97,6 +97,20 @@ window.addEventListener('load', function(e) {
 		}
 	}
 	
+	function addcss(css){
+		var head = document.getElementsByTagName('head')[0];
+		var s = document.createElement('style');
+		s.setAttribute('type', 'text/css');
+		if (s.styleSheet) {   // IE
+			s.styleSheet.cssText = css;
+		} else {                // the world
+			s.appendChild(document.createTextNode(css));
+		}
+		head.appendChild(s);
+	}
+	
+	addcss(".input-group-addon.title{min-width:120px;}.input-group-addon.value{width:60px;}");
+	
 	var panel = document.createElement('div');
 	var inputFile = document.createElement('input');
 	var cmdUpload = document.createElement('button');
@@ -201,7 +215,15 @@ window.addEventListener('load', function(e) {
 		//document.getElementById("cmbFilters").add(option);
 		cmbFilters.add(option);
 	}
-	
+	window.selectFilter = function(txtFilter){
+		cmbFilters.style.display = 'none';
+		for (var i = 0; i < cmbFilters.options.length; i++) {
+			if (cmbFilters.options[i].text === txtFilter) {
+				cmbFilters.selectedIndex = i;
+				break;
+			}
+		}
+	}
 	window.addFilter = addFilter;
 	window.Filter = Filter;
 	window.createSlider = function(container, name, title, value, min, max, step, callback){
@@ -222,6 +244,16 @@ window.addEventListener('load', function(e) {
 		el.oninput = el.onchange = function(e){ el.nextSibling.innerText = this.value; }
 		el.onmouseup = el.ontouchend = callback;
 		return el;
+	}
+	
+	window.createButton = function(container, name, title, callback){
+		var cmd = document.createElement('button');
+		cmd.addClass = "btn btn-primary";
+		cmd.innerText = title;
+		cmd.name = name;
+		container.appendChild(cmd);
+		container.onclick = callback;
+		return cmd;
 	}
 	
 	// Finalize

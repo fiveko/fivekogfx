@@ -10,7 +10,6 @@
 		.input-group-addon.title {
 			min-width:120px;
 		}
-
 		.input-group-addon.value {
 			width:60px;
 		}
@@ -31,7 +30,7 @@
 		<b><a href="http://fiveko.com/tutorials/dip" target="_blank">Image Processing Tutorials</a></b>
 	</div>
 	<!-- ====================== JavaScript =================== -->
-	<script src="./preview.min.js"></script>
+	<script src="./preview.js"></script>
 	<script src="../src/fivekogfx.min.js"></script>
 	
 	<script>
@@ -85,6 +84,32 @@
 				fivekogfx.draw(canvas);
 			}, reset));
 			
+			addFilter(new Filter("Watershed", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.0, 0, 10, 0.5, this.update.bind(this)));
+				this.add(createButton(controls, "cmdExecute", "Execute", this.update.bind(this)));
+				this.seeds = [{pixels: []}, {pixels: []}];
+				var self = this;
+				function addSeed(x, y, index){
+					if (-1 !== self.seeds[index].pixels.indexOf(4*(x + y*canvas.width)))
+						return;
+						
+					self.seeds[index].pixels.push(4*(x + y*canvas.width));
+					var ctx = canvas.getContext('2d');
+					ctx.fillStyle= (index) ? "red" : "green";
+					ctx.fillRect(x,y,3,3); // fill in the pixel at (x,y)
+				}
+				
+				canvas.onmousedown = canvas.onmousemove = function(e){
+					if (!e.buttons)
+						return;
+					addSeed(e.offsetX, e.offsetY, e.buttons == 1 ? 0 : 1);
+				}.bind(this);
+				
+			}, function(sigma){
+				fivekogfx.gauss(sigma);
+				fivekogfx.draw(canvas);
+				fivekogfx.watershed(canvas, this.seeds);
+			}, reset));
 		}
 	</script>
 </body>
