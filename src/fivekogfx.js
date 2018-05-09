@@ -194,14 +194,11 @@ function FivekoGFX(canvasSource){
 		var fivekogfx = this;
 		var gl = fivekogfx.gl;
 		
-		//if (!this.canvasBuffer)
 		this.initialize(source.width, source.height);
 		
 		// start with the original image
 		var startTime = window.performance.now();
 		gl.bindTexture(gl.TEXTURE_2D, this.originalImageTexture);
-		//this.canvasBuffer.getContext("2d").drawImage(source, 0, 0, this.canvasBuffer.width, this.canvasBuffer.height);
-		//console.log("Canvas loaded!" + "Elapsed: " + (window.performance.now() - startTime).toString());
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 		console.log("Image loaded!" + "Elapsed: " + (window.performance.now() - startTime).toString());
 	}
@@ -337,19 +334,6 @@ function FivekoGFX(canvasSource){
 		if (canvas){
 			canvas.getContext("2d").drawImage(gl.canvas, 0, 0);
 		}
-		
-		
-		/*var webglCanvas = gl.canvas;
-		if (!this.offscreenCanvas)
-			this.offscreenCanvas = document.createElement("canvas");
-		this.offscreenCanvas.width = webglCanvas.width;
-		this.offscreenCanvas.height = webglCanvas.height;
-		var ctx = this.offscreenCanvas.getContext("2d");
-
-		ctx.drawImage(webglCanvas,0,0);
-		var imageData = ctx.getImageData(0,0, this.offscreenCanvas.width, this.offscreenCanvas.height);*/
-
-		//return this.execute(image);
 	}
 	
 	FivekoGFX.prototype.readPixels = function(pixels){
@@ -436,7 +420,6 @@ FivekoGFX.prototype.loadShaders = function(shaders){
 	gl.linkProgram(shaderProgram);
 
 	// If creating the shader program failed, alert
-
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 		alert("Unable to initialize the shader program.");
 	}
@@ -445,12 +428,3 @@ FivekoGFX.prototype.loadShaders = function(shaders){
 
 	return shaderProgram;
 }
-// https://taylorpetrick.com/blog/post/convolution-part4
-// https://www.html5rocks.com/en/tutorials/webgl/webgl_fundamentals/
-// https://webglfundamentals.org/webgl/lessons/webgl-image-processing-continued.html
-// https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
-// https://msdn.microsoft.com/en-us/library/dn385805(v=vs.85).aspx
-// http://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
-
-
