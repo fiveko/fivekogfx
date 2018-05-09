@@ -34,14 +34,14 @@
 	<script src="../src/fivekogfx.min.js"></script>
 	
 	<script>
-	
+		
 		function initPreview(source, canvas){
 			var fivekogfx = new FivekoGFX();
 			var controls = document.getElementById("controls");
 			
 			function reset(){
 				redraw();
-				fivekogfx.load(source/*canvas*/);
+				fivekogfx.load(source);
 			}
 			
 			addFilter(new Filter("Box Blur", function(){
@@ -96,7 +96,7 @@
 					self.seeds[index].pixels.push(4*(x + y*canvas.width));
 					var ctx = canvas.getContext('2d');
 					ctx.fillStyle= (index) ? "red" : "green";
-					ctx.fillRect(x,y,3,3); // fill in the pixel at (x,y)
+					ctx.fillRect(x,y,5,5); // fill in the pixel at (x,y)
 				}
 				
 				canvas.onmousedown = canvas.onmousemove = function(e){
@@ -106,9 +106,34 @@
 				}.bind(this);
 				
 			}, function(sigma){
+				if (!this.seeds[0].pixels.length) return;
 				fivekogfx.gauss(sigma);
 				fivekogfx.draw(canvas);
 				fivekogfx.watershed(canvas, this.seeds);
+			}, reset));
+			
+			addFilter(new Filter("Greyscale", function(){
+			}, function(){
+				fivekogfx.rgb2grey();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("RGB to XYZ", function(){
+			}, function(){
+				fivekogfx.rgb2xyz();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("RGB to YCbCr", function(){
+			}, function(){
+				fivekogfx.rgb2ycbcr();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Skin Mask", function(){
+			}, function(){
+				fivekogfx.skinMask();
+				fivekogfx.draw(canvas);
 			}, reset));
 		}
 	</script>
