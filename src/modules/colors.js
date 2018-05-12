@@ -96,30 +96,28 @@ precision mediump float;
 // our texture
 uniform sampler2D u_image;
 uniform vec2 u_textureSize;
-#define HLSMAX 6.0 // 240.0/255.0 
-#define RGBMAX 1.0 
-#define UNDEFINED (HLSMAX*2.0/3.0)
 
 void main() {
 	vec4 color = texture2D(u_image, gl_FragCoord.xy / u_textureSize);
 	float cMin = min(min(color.r, color.g), color.b);
 	float cMax = max(max(color.r, color.g), color.b);
-	float L = (((cMax+cMin)) )/(2.0);
-	float delta = (cMax - cMin);
+	float L = (cMax + cMin)/(2.0);
 	
 	if (cMin == cMax){
 		gl_FragColor = vec4(vec3(0, 0, L), color.a); 
 		return;
 	}
 	// Calc Saturation
-   float S = ((L > 0.5) ? (delta / (2.0 - cMax - cMin)) : (delta / (cMax + cMin)));
+	float delta = (cMax - cMin);
+	float S = ((L > 0.5) ? (delta / (2.0 - cMax - cMin)) : (delta / (cMax + cMin)));
 	
 	// Calc Hue
 	float H = (color.r == cMax) ? (((color.g - color.b) / delta)) :
-		      ((color.g == cMax) ? (2.0 + (color.b - color.r) / delta) :
-		                  ((4.0 + (color.r - color.g) / delta)));
-	H += ((H < 0.0) ? (HLSMAX) : 0.0);
-	gl_FragColor = vec4(vec3(H, S, L), color.a);
+				((color.g == cMax) ? (2.0 + (color.b - color.r) / delta) :
+				((4.0 + (color.r - color.g) / delta)));
+	
+	H += ((H < 0.0) ? (6.0) : ((H > 6.0) ? (-6.0) : 0.0));
+	gl_FragColor = vec4(vec3(H / 6.0, S, L), color.a);
 }`;
 
 
