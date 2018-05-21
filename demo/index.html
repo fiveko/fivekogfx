@@ -30,7 +30,7 @@
 		<b><a href="http://fiveko.com/tutorials/dip" target="_blank">Image Processing Tutorials</a></b>
 	</div>
 	<!-- ====================== JavaScript =================== -->
-	<script src="./preview.js"></script>
+	<script src="./preview.min.js"></script>
 	<script src="../src/fivekogfx.min.js"></script>
 	
 	<script>
@@ -112,6 +112,23 @@
 				fivekogfx.watershed(canvas, this.seeds);
 			}, reset));
 			
+			addFilter(new Filter("Back Project", function(){
+				this.add(createSelector(canvas, function(rect){
+					reset();
+					//fivekogfx.gauss(2.0);
+					fivekogfx.rgb2hsl();
+					this.controls[0].value = fivekogfx.histogram(rect);
+					this.update.call(this);
+				}.bind(this)));
+				this.add(createButton(controls, "cmdReset", "Reset", this.reset.bind(this)));
+				
+			}, function(hists){
+				if (!hists) return;
+				fivekogfx.gauss(2.0);
+				fivekogfx.rgb2hsl();
+				fivekogfx.colormap(fivekogfx.normalize(hists[0]));
+				fivekogfx.draw(canvas);
+			}, reset));
 			addFilter(new Filter("Greyscale", function(){
 			}, function(){
 				fivekogfx.rgb2grey();
@@ -133,6 +150,14 @@
 			addFilter(new Filter("Skin Mask", function(){
 			}, function(){
 				fivekogfx.skinMask();
+				fivekogfx.draw(canvas);
+			}, reset));
+
+			addFilter(new Filter("Equalize", function(){
+			}, function(){
+				fivekogfx.rgb2grey();
+				var hists = fivekogfx.histogram({x:0, y:0, w: canvas.width, h: canvas.height});
+				fivekogfx.colormap(fivekogfx.equalize(hists[0]));
 				fivekogfx.draw(canvas);
 			}, reset));
 		}

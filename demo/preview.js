@@ -160,7 +160,7 @@ window.addEventListener('load', function(e) {
 		var filter = this.options[this.selectedIndex].filter;
 		gFilter = this.options[this.selectedIndex].filter;
 		filter.init();
-		filter.update();
+		//filter.update();
 		return false;
 	}
 	
@@ -192,7 +192,7 @@ window.addEventListener('load', function(e) {
 		}
 		this.update = function (){
 			var startTime = new Date();
-			reset();
+			reset.call(this);
 			var values = [];
 			for (var i = 0; i < this.controls.length; i++)
 				values.push(this.controls[i].value);
@@ -212,7 +212,6 @@ window.addEventListener('load', function(e) {
 		var option = document.createElement("option");
 		option.text = filter.name;
 		option.filter = filter;
-		//document.getElementById("cmbFilters").add(option);
 		cmbFilters.add(option);
 	}
 	window.selectFilter = function(txtFilter){
@@ -251,9 +250,36 @@ window.addEventListener('load', function(e) {
 		cmd.addClass = "btn btn-primary";
 		cmd.innerText = title;
 		cmd.name = name;
+		cmd.onclick = callback;
 		container.appendChild(cmd);
-		container.onclick = callback;
 		return cmd;
+	}
+	
+	window.createSelector = function(canvas, callback){
+		var rect = {x: 0, y: 0, w: 0, h: 0};
+		var el = {canvas: canvas, value: null};
+		canvas.onmousedown = function(e){
+			rect.x = e.offsetX;
+			rect.y = e.offsetY;
+		}
+		canvas.onmousemove = function(e){
+			if (!e.buttons)
+				return;
+			
+			rect.w = e.offsetX - rect.x;
+			rect.h = e.offsetY - rect.y;
+			var ctx = canvas.getContext("2d");
+			// clear canvas
+			redraw();
+			ctx.beginPath();
+			ctx.rect(rect.x, rect.y, rect.w, rect.h);
+			ctx.stroke();
+		}
+		
+		canvas.onmouseup = function(e){
+			callback(rect);
+		};
+		return el;
 	}
 	
 	// Finalize
