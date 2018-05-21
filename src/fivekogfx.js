@@ -133,11 +133,7 @@ function FivekoGFX(canvasSource){
 		var fivekogfx = this;
 		var gl = fivekogfx.gl;
 		var canvas = gl.canvas;
-		/*var maxSize = (document.documentElement.clientWidth > 480 ? 480 : (document.documentElement.clientWidth - 100));
-		const scale = maxSize / Math.max(width, height),
-			scaleWidth = scale*width,
-			scaleHeight = scale*height;
-		*/
+		
 		// If we are using the same dimensions then just return
 		if (this.originalImageTexture && canvas.width == width && canvas.height == height){
 			return;
@@ -203,75 +199,6 @@ function FivekoGFX(canvasSource){
 		console.log("Image loaded!" + "Elapsed: " + (window.performance.now() - startTime).toString());
 	}
 	
-	FivekoGFX.prototype.loadOLD = function(image){
-		var fivekogfx = this;
-		var gl = fivekogfx.gl;
-
-		var startTime = window.performance.now();
-		var texture = createTexture(gl);
-		
-		var canvas = gl.canvas;
-		var maxSize = (document.documentElement.clientWidth > 480 ? 480 : (document.documentElement.clientWidth - 100));
-		var scale = maxSize / Math.max(image.width, image.height);
-		canvas.width = scale*image.width;
-		canvas.height = scale*image.height;
-		
-		// Use canvas Buffer
-		var canvasBuffer = document.createElement('canvas');
-		canvasBuffer.width = canvas.width;
-		canvasBuffer.height = canvas.height;
-		canvasBuffer.getContext("2d").drawImage(image, 0, 0, canvasBuffer.width, canvasBuffer.height);
-		//
-		
-		console.log("Texture created!");
-		// Upload the image into the texture.
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvasBuffer);
-		this.originalImageTexture = texture;
-		console.log("Image loaded!" + "Elapsed: " + (window.performance.now() - startTime).toString());
-		
-		
-		// create 2 textures and attach them to framebuffers.
-		var textures = [];
-		var framebuffers = [];
-		for (var ii = 0; ii < 2; ++ii) {
-			var texture = createTexture(gl);
-			textures.push(texture);
-
-			// make the texture the same size as the image
-			gl.texImage2D(
-				gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height/*image.width, image.height*/, 0,
-				gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-			// Create a framebuffer
-			var fbo = gl.createFramebuffer();
-			framebuffers.push(fbo);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-			// Attach a texture to it.
-			gl.framebufferTexture2D(
-				gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-		}
-		
-		// provide texture coordinates for the rectangle.
-		var positionBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-		  -1.0, -1.0, 
-		   1.0, -1.0, 
-		  -1.0,  1.0, 
-		  -1.0,  1.0, 
-		   1.0, -1.0, 
-		   1.0,  1.0]), gl.STATIC_DRAW);
-		
-		// start with the original image
-		gl.bindTexture(gl.TEXTURE_2D, this.originalImageTexture);
-		
-		//fivekogfx.image = image;
-		fivekogfx.textures = textures;
-		fivekogfx.framebuffers = framebuffers;
-		fivekogfx.count = 0;
-	}
-	
 	function render(gl, program, fbo){
 		
 		//gl.useProgram(program);
@@ -307,7 +234,6 @@ function FivekoGFX(canvasSource){
 		
 		// Draw the rectangle.
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
-		//drawWithKernel(checkbox.value);
 
 		// for the next draw, use the texture we just rendered to.
 		//gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -336,6 +262,21 @@ function FivekoGFX(canvasSource){
 		}
 	}
 	
+	FivekoGFX.prototype.makeTextImage2D = function(program, id, name, width, height, format, type, pixels){
+		var gl = this.gl;
+		var texture = gl.createTexture();
+		gl.activeTexture(gl.TEXTURE0 + id);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, pixels);
+		var u_textureLoc = gl.getUniformLocation(program, "u_colorTable");
+		gl.uniform1i(u_textureLoc, id);
+		// restore back the active TEXTURE0
+		gl.activeTexture(gl.TEXTURE0);
+	}
+	
 	FivekoGFX.prototype.readPixels = function(pixels){
 		var gl = this.gl;
 		
@@ -345,6 +286,13 @@ function FivekoGFX(canvasSource){
 		gl.readPixels(0, 0, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels.data);
 		
 		return pixels;
+	}
+	
+	FivekoGFX.prototype.getImageData = function(x, y, width, height){
+		var gl = this.gl;
+		var data = new Uint8Array(width*height*4);
+		gl.readPixels(x, gl.drawingBufferHeight - y - height, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		return {data: data, width: width, height: height};
 	}
 	
 	FivekoGFX.prototype.execute = function(program){

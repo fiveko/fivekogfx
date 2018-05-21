@@ -7,17 +7,18 @@
 
 (function(filters) {
 
-// Using Y component from YCbCr
+
+// Using Y component from YCbCr [0-255]
 const shaderSourceRGB2GREY = `
 precision mediump float;
 
 // our texture
 uniform sampler2D u_image;
 uniform vec2 u_textureSize;
-vec4 scale = vec4(0.257,  0.504,  0.098, 0.0);
+vec4 scale = vec4(0.299,  0.587,  0.114, 0.0);
 void main() {
 	vec4 color = texture2D(u_image, gl_FragCoord.xy / u_textureSize);
-	gl_FragColor = vec4(vec3(length(color*scale)), color.a);
+	gl_FragColor = vec4(vec3(dot(color,scale)), color.a);
 }`;
 
 
@@ -115,34 +116,46 @@ void main() {
 	float H = (color.r == cMax) ? (((color.g - color.b) / delta)) :
 				((color.g == cMax) ? (2.0 + (color.b - color.r) / delta) :
 				((4.0 + (color.r - color.g) / delta)));
-	
-	H += ((H < 0.0) ? (6.0) : ((H > 6.0) ? (-6.0) : 0.0));
-	gl_FragColor = vec4(vec3(H / 6.0, S, L), color.a);
+	H = ((H < 0.0) ? (H + 6.0) : H) / 6.0;
+	gl_FragColor = vec4(vec3(H, S, L), color.a);
 }`;
 
+const shaderSourceColorMap = `
+precision mediump float;
 
-filters.prototype.rgb2grey = function() {
-	var gl = this.gl;
-	var program = this.createProgram("rgb2grey", shaderSourceRGB2GREY);
+// our texture
+uniform vec2 u_textureSize;
+uniform sampler2D u_image;
+uniform sampler2D u_colorTable;
+
+void main() {
+	vec2 pos = vec2(texture2D(u_image, gl_FragCoord.xy / u_textureSize).x, 0.0);
+	vec4 color = texture2D(u_colorTable, pos);
 	
+	gl_FragColor = color;
+}`;
+
+function execute(name, shader){
+	var gl = this.gl;
+	var program = this.createProgram(name, shader);
 	gl.useProgram(program);
 	this.execute(program);
+}
+
+filters.prototype.rgb2grey = function() {
+	execute.call(this, "rgb2grey", shaderSourceRGB2GREY);
+}
+
+filters.prototype.rgb2luma = function() {
+	execute.call(this, "rgb2lum", shaderSourceRGB2LUMA);
 }
 
 filters.prototype.rgb2ycbcr = function() {
-	var gl = this.gl;
-	var program = this.createProgram("rgb2ycbcr", shaderSourceRGB2YCbCr);
-	
-	gl.useProgram(program);
-	this.execute(program);
+	execute.call(this, "rgb2ycbcr", shaderSourceRGB2YCbCr);
 }
 
 filters.prototype.ycbcr2rgb = function() {
-	var gl = this.gl;
-	var program = this.createProgram("ycbcr2rgb", shaderSourceYCbCr2RGB);
-	
-	gl.useProgram(program);
-	this.execute(program);
+	execute.call(this, "ycbcr2rgb", shaderSourceYCbCr2RGB);
 }
 
 filters.prototype.skinMask = function() {
@@ -156,18 +169,23 @@ filters.prototype.skinMask = function() {
 }
 
 filters.prototype.rgb2xyz = function() {
-	var gl = this.gl;
-	var program = this.createProgram("rgb2xyz", shaderSourceRGB2XYZ);
-	
-	gl.useProgram(program);
-	this.execute(program);
+	execute.call(this, "rgb2xyz", shaderSourceRGB2XYZ);
 }
 
 filters.prototype.rgb2hsl = function() {
+	execute.call(this, "rgb2hsl", shaderSourceRGB2HSL);
+}
+
+// Map a histogram LUT to an image. So far a Grayscale one
+filters.prototype.colormap = function(table){
 	var gl = this.gl;
-	var program = this.createProgram("rgb2hsl", shaderSourceRGB2HSL);
-	
+	var program = this.createProgram("colormap", shaderSourceColorMap);
 	gl.useProgram(program);
+	
+	this.makeTextImage2D(program, 1, "u_colorTable", 
+				table.length, 1, 
+				gl.LUMINANCE, gl.UNSIGNED_BYTE, table);
+	
 	this.execute(program);
 }
 
