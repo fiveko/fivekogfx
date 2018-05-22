@@ -1,5 +1,5 @@
 # fivekogfx
-Image Processing Library (JavaScript and WebGL)
+HTML5 Image Processing Library (JavaScript and WebGL)
 
 For more information see here: [FivekoGFX](http://fiveko.com/)
 
@@ -14,6 +14,9 @@ Image Processing Filters like:
  
  ![Alt text](assets/Watershed.png?raw=true "Meyer's flooding algorithm")
  
+ - Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
+ - Color tracking by Back Projection
+ - Histogram equalization
  - More TBD ...
  
 Input formats:
