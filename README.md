@@ -17,6 +17,7 @@ Image Processing Filters like:
  - Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
  - Color tracking by Back Projection
  - Histogram equalization
+ - Cartesian plane to Log-Plar image transform
  - More TBD ...
  
 Input formats:
