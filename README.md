@@ -11,8 +11,7 @@ Image Processing Filters like:
  - Symmetric Nearest Neighbour filter (Symmetric NN)
  - Hough transform
  - Watershed trasnform (currently Meyer's flooding algorithm)
- 
- ![Alt text](assets/Watershed.png?raw=true "Meyer's flooding algorithm")
+ [<img src="assets/Watershed.png?raw=true" title="Meyer's flooding algorithm">](http://fiveko.com/tutorials/image-processing/watershed-image-segmentation/)
  
  - Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
  - Color tracking by Back Projection
