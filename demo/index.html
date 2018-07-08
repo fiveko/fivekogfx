@@ -32,7 +32,6 @@
 	<!-- ====================== JavaScript =================== -->
 	<script src="./preview.min.js"></script>
 	<script src="../src/fivekogfx.min.js"></script>
-	
 	<script>
 		
 		function initPreview(source, canvas){
@@ -158,6 +157,12 @@
 				fivekogfx.rgb2grey();
 				var hists = fivekogfx.histogram({x:0, y:0, w: canvas.width, h: canvas.height});
 				fivekogfx.colormap(fivekogfx.equalize(hists[0]));
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Log-Polar Mapping", function(){
+			}, function(){
+				fivekogfx.logpolar();
 				fivekogfx.draw(canvas);
 			}, reset));
 		}

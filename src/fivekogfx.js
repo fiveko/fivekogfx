@@ -200,18 +200,12 @@ function FivekoGFX(canvasSource){
 	}
 	
 	function render(gl, program, fbo){
-		
-		//gl.useProgram(program);
 		// look up where the vertex data needs to go.
 		var positionLocation = gl.getAttribLocation(program, "a_position"); 
 
 		// look up uniform locations
 		var u_imageLoc = gl.getUniformLocation(program, "u_image");
-		var u_matrixLoc = gl.getUniformLocation(program, "u_matrix");
-
-		// For avg filter
 		var textureSizeLocation = gl.getUniformLocation(program, "u_textureSize");
-		//var texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
 		
 		//var startTime = window.performance.now();
 		//gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -271,7 +265,7 @@ function FivekoGFX(canvasSource){
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, pixels);
-		var u_textureLoc = gl.getUniformLocation(program, "u_colorTable");
+		var u_textureLoc = gl.getUniformLocation(program, name);
 		gl.uniform1i(u_textureLoc, id);
 		// restore back the active TEXTURE0
 		gl.activeTexture(gl.TEXTURE0);

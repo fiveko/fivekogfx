@@ -93,6 +93,7 @@ window.addEventListener('load', function(e) {
 		if (func){
 			func(url, function(){
 				URL.revokeObjectURL(url);
+				document.getElementById('cmbFilters').onchange();
 			});
 		}
 	}
@@ -164,7 +165,7 @@ window.addEventListener('load', function(e) {
 		return false;
 	}
 	
-	
+	cmbFilters.id= "cmbFilters";
 	preview.insertBefore(canvas, preview.firstChild);
 	preview.insertBefore(panel, preview.firstChild);
 	panel.appendChild(inputFile);
