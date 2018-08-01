@@ -17,15 +17,15 @@
 </head>
 <body>
 
-	<hr></hr>
+	<hr />
 	<h2 id="demoapp" style="text-align: center;">FivekoGFX Demo App</h2>
-	<hr></hr>
+	<hr />
 	
 	<div style="text-align: center;" data-role="preview" data-type="webgl" data-source="" data-callback="initPreview">
 		<div id="controls"></div>
 		<div id="log">Sigma: 3</div>
 	</div>
-	<hr></hr>
+	<hr />
 	<div style="text-align: center;">
 		<b><a href="http://fiveko.com/tutorials/dip" target="_blank">Image Processing Tutorials</a></b>
 	</div>
@@ -43,10 +43,10 @@
 				fivekogfx.load(source);
 			}
 			
-			addFilter(new Filter("Box Blur", function(){
-				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			addFilter(new Filter("Mean Filter", function(){
+				this.add(createSlider(controls, "sizeSlider", "Size", 3, 1, 31, 2, this.update.bind(this)));
 			}, function(sigma){
-				fivekogfx.blur(sigma);
+				fivekogfx.mean(sigma);
 				fivekogfx.draw(canvas);
 			}, reset));
 			
@@ -54,6 +54,13 @@
 				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
 			}, function(sigma){
 				fivekogfx.gauss(sigma);
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Box Blur", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(sigma){
+				fivekogfx.blur(sigma);
 				fivekogfx.draw(canvas);
 			}, reset));
 			
@@ -163,6 +170,12 @@
 			addFilter(new Filter("Log-Polar Mapping", function(){
 			}, function(){
 				fivekogfx.logpolar();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Local Binary Pattern", function(){
+			}, function(){
+				fivekogfx.lbp();
 				fivekogfx.draw(canvas);
 			}, reset));
 		}

@@ -135,6 +135,20 @@ void main() {
 	gl_FragColor = color;
 }`;
 
+const shaderSourceRGB2BIN = `
+precision mediump float;
+
+// our texture
+uniform vec2 u_textureSize;
+uniform sampler2D u_image;
+uniform vec4 u_threshold;
+
+void main() {
+	vec4 color = texture2D(u_image, gl_FragCoord.xy / u_textureSize);
+	
+	gl_FragColor = vec4(greaterThan(color, u_threshold));
+}`;
+
 function execute(name, shader){
 	var gl = this.gl;
 	var program = this.createProgram(name, shader);
@@ -185,6 +199,19 @@ filters.prototype.colormap = function(table){
 	this.makeTextImage2D(program, 1, "u_colorTable", 
 				table.length, 1, 
 				gl.LUMINANCE, gl.UNSIGNED_BYTE, table);
+	
+	this.execute(program);
+}
+
+/*
+* Simple and fast image binarization
+* thresholds - vec4 array of float RGBA thresholds
+*/
+filters.prototype.rgb2bin = function(thresholds) {
+	var gl = this.gl;
+	var program = this.createProgram("rgb2bin", shaderSourceRGB2BIN);
+	gl.useProgram(program);
+	gl.uniform4fv(gl.getUniformLocation(program, "u_threshold"), thresholds);
 	
 	this.execute(program);
 }
