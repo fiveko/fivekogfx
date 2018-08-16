@@ -42,6 +42,11 @@
 				redraw();
 				fivekogfx.load(source);
 			}
+						
+			addFilter(new Filter("Original", function(){
+				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
+			}, function(){
+			}, reset));
 			
 			addFilter(new Filter("Mean Filter", function(){
 				this.add(createSlider(controls, "sizeSlider", "Size", 3, 1, 31, 2, this.update.bind(this)));
@@ -70,6 +75,16 @@
 				fivekogfx.blur(sigma);
 				fivekogfx.sobel();
 				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Harris Corners", function(){
+				this.add(createSlider(controls, "sizeSlider", "Min Distance", 11, 1, 51, 2, this.update.bind(this)));
+				//this.add(createSlider(controls, "thresholdSlider", "Threshold", 20, 0, 100, 10, this.update.bind(this)));
+			}, function(size, threshold){
+				fivekogfx.harrisCorners();
+				fivekogfx.nms(size);
+				fivekogfx.draw(canvas);
+				
 			}, reset));
 			
 			addFilter(new Filter("HoughCircle", function(){
@@ -152,6 +167,13 @@
 				fivekogfx.rgb2ycbcr();
 				fivekogfx.draw(canvas);
 			}, reset));
+
+			addFilter(new Filter("RGB to HSL", function(){
+			}, function(){
+				fivekogfx.rgb2hsl();
+				fivekogfx.draw(canvas);
+			}, reset));
+			
 			
 			addFilter(new Filter("Skin Mask", function(){
 			}, function(){
