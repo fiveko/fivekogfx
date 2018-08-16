@@ -38,12 +38,13 @@ function FivekoGFX(canvasSource){
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
+		gl.getExtension('OES_texture_float');
 		// Flip the image's Y axis to match the WebGL texture coordinate space.
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		
 		// Set the parameters so we can render any size image.
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		
@@ -158,7 +159,7 @@ function FivekoGFX(canvasSource){
 			// make the texture the same size as the image
 			gl.texImage2D(
 				gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height/*image.width, image.height*/, 0,
-				gl.RGBA, gl.UNSIGNED_BYTE, null);
+				gl.RGBA, gl.FLOAT, null);
 
 			// Create a framebuffer
 			var fbo = gl.createFramebuffer();
@@ -261,7 +262,7 @@ function FivekoGFX(canvasSource){
 		var texture = gl.createTexture();
 		gl.activeTexture(gl.TEXTURE0 + id);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, pixels);
@@ -284,8 +285,8 @@ function FivekoGFX(canvasSource){
 	
 	FivekoGFX.prototype.getImageData = function(x, y, width, height){
 		var gl = this.gl;
-		var data = new Uint8Array(width*height*4);
-		gl.readPixels(x, gl.drawingBufferHeight - y - height, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		var data = new Float32Array(width*height*4);
+		gl.readPixels(x, gl.drawingBufferHeight - y - height, width, height, gl.RGBA, gl.FLOAT, data);
 		return {data: data, width: width, height: height};
 	}
 	

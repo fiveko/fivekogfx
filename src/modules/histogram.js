@@ -14,9 +14,9 @@ filters.prototype.histogram = function(rect){
 	var data = this.getImageData(rect.x, rect.y, rect.w, rect.h).data;
 	var hists = Array.from({ length: 3 }, () => new Uint32Array(256));
 	for (var i = 0, len = data.length; i < len; i+=4){
-		hists[0][data[i + 0]]++;
-		hists[1][data[i + 1]]++;
-		hists[2][data[i + 2]]++;
+		hists[0][~~(data[i + 0]*255)]++;
+		hists[1][~~(data[i + 1]*255)]++;
+		hists[2][~~(data[i + 2]*255)]++;
 	}
 	return hists;
 }

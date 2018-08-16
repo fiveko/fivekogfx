@@ -69,7 +69,7 @@ filters.prototype.mean = function(size) {
 // Iterative blur using mean filter 
 // iterations count is calculated using sigma param
 filters.prototype.blur = function(sigma) {
-	var count = (12*sigma*sigma) / (3*3-1);
+	var count = ~~Math.min((12*sigma*sigma) / (3*3-1), 100);
 	var gl = this.gl;
 	var program = this.createProgram("blur3x3", shaderSoruce3x3);
 	
