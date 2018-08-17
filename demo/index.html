@@ -77,8 +77,8 @@
 				fivekogfx.draw(canvas);
 			}, reset));
 			
-			addFilter(new Filter("Harris Corners", function(){
-				this.add(createSlider(controls, "sizeSlider", "Min Distance", 11, 1, 51, 2, this.update.bind(this)));
+			addFilter(new Filter("HarrisCorners", function(){
+				this.add(createSlider(controls, "sizeSlider", "Min Distance", 5, 1, 25, 2, this.update.bind(this)));
 				//this.add(createSlider(controls, "thresholdSlider", "Threshold", 20, 0, 100, 10, this.update.bind(this)));
 			}, function(size, threshold){
 				fivekogfx.harrisCorners();
