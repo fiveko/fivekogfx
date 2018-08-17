@@ -57,7 +57,7 @@ void main() {
 		
 		// Harris-Noble corner measure
 		//float M = (A * B - C * C) / (A + B + 1e-31);
-		gl_FragColor = vec4(vec3((M)), 1.0);
+		gl_FragColor = vec4(vec3(max(M, 0.0)), 1.0);
 	}
 }`;
 

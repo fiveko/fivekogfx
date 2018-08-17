@@ -13,7 +13,7 @@ const shaderSource = `
 precision mediump float;
 
 #define KERNEL_SIZE %kernelSize%
-#define KERNEL_HALF (KERNEL_SIZE / 2)
+
 // our texture
 uniform sampler2D u_image;
 uniform vec2 u_textureSize;
@@ -25,23 +25,27 @@ uniform vec2 u_direction;
 void main() {
 	vec2 onePixel = u_direction / u_textureSize;
 	vec2 textCoord = gl_FragCoord.xy / u_textureSize;
-	vec4 cc = GET_PIXEL(0);
 	
-	if (any(lessThan(cc.rgb, vec3(0.0))))
+	if (any(lessThan(GET_PIXEL(0).rgb, vec3(0.0))))
 	{
-		cc = vec4(vec3(0.0), 1.0);
+		gl_FragColor = vec4(vec3(0.0), 1.0);
 	}
 	else
 	{
-		vec3 maxValue = vec3(0.0);
-		for (int i = -KERNEL_HALF; i <= KERNEL_HALF; i++)
+		int maxIdx;
+		float maxValue = 0.0;
+		
+		for (int i = -KERNEL_SIZE; i <= KERNEL_SIZE; i++)
 		{
-			maxValue = max(maxValue, abs(GET_PIXEL(i).rgb));
+			float p = length(GET_PIXEL(i).rgb);
+			if (p > maxValue)
+			{
+				maxValue = p;
+				maxIdx = i;
+			}
 		}
-		cc = vec4(maxValue*((maxValue != cc.rgb) ? -1.0 : 1.0), 1.0);
+		gl_FragColor = vec4(vec3(maxValue*(1.0 - float(maxIdx != 0)*2.0)), 1.0);
 	}
-	
-	gl_FragColor = cc;
 }`;
 
 
