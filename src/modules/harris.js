@@ -20,7 +20,11 @@ uniform float u_kernel[KERNEL_SIZE];
 uniform int u_direction;
 
 #define GET_PIXEL(_x, _y) (texture2D(u_image, textCoord + onePixel*vec2(_x, _y)))
- 
+
+#define DET(_p)     ((_p).x*(_p).y - (_p).z*(_p).z)
+#define TRACE(_p)   ((_p).x + (_p).y)
+// Choose desired Harris method (0 or 1)
+#define USED_METHOD 1
 
 void main() {
 	vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
@@ -49,15 +53,14 @@ void main() {
 				GET_PIXEL( 0,  1) + GET_PIXEL( 1,  1) +
 				GET_PIXEL( 1,  0) + GET_PIXEL( 1, -1) +
 				GET_PIXEL( 0, -1)) / 9.0;
-		float A = p.x;
-		float B = p.y;
-		float C = p.z;
+	
+#if (USED_METHOD == 0)
 		float k = 0.04;
-		float M = (A * B - C * C) - (k * ((A + B) * (A + B)));
-		
-		// Harris-Noble corner measure
-		//float M = (A * B - C * C) / (A + B + 1e-31);
-		gl_FragColor = vec4(vec3(max(M, 0.0)), 1.0);
+		float R = DET(p) - (k * (TRACE(p)*TRACE(p)));
+#else  // Harris-Noble corner measure
+		float R = DET(p) / (TRACE(p) + 1e-31);
+#endif
+		gl_FragColor = vec4(vec3(max(R, 0.0)), 1.0);
 	}
 }`;
 
