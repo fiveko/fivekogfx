@@ -1,26 +1,27 @@
 # fivekogfx
-FivekoGFX is a tiny Image Processing Library. The main code base of FivekoGFX is written in JavaScript and OpenGL shaders (GLSL). FivekoGFX is a web-based image processing lib and it tries to provide optimal solutions and take advantage of the GPU power (where possible). 
+FivekoGFX ([Fiveko Graphics](http://fiveko.com/projects/fivekogfx-image-processing-library/)) is a tiny Image Processing Library. The main code base of FivekoGFX is written in JavaScript and OpenGL shaders (GLSL). FivekoGFX is a web-based image processing lib and it tries to provide optimal solutions and take advantage of the GPU power (where possible). 
 
-For more information see here: [FivekoGFX](http://fiveko.com/)
+You are also wlcome to visit [fiveko.com](http://fiveko.com/).
 
 # Features
 ## Different image processing filters and transformations like:
-* Convolution operator - 2D masks and 1D separable kernels
-* Gaussian blur
-* Sobel edge detection
-* Mean filter
-* Symmetric Nearest Neighbour filter (Symmetric NN)
-* Hough transform
-* Watershed trasnform (currently Meyer's flooding algorithm)
+- Convolution operator - 2D masks and 1D separable kernels
+- Gaussian blur
+- Sobel edge detection
+- Mean filter
+- Symmetric Nearest Neighbour filter (Symmetric NN)
+- Hough transform
+- Watershed trasnform (currently Meyer's flooding algorithm)
  [<img src="assets/Watershed.png?raw=true" title="Meyer's flooding algorithm">](http://fiveko.com/tutorials/image-processing/watershed-image-segmentation/)
  
-* Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
-* Color tracking by Back Projection
-* Histogram equalization
-* Cartesian plane to Log-Polar image transform
-* Local Binary Patterns (LBP)
-* More TBD ...
- 
+- Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
+- Color tracking by Back Projection
+- Histogram equalization
+- Cartesian plane to Log-Polar image transform
+- Local Binary Patterns (LBP)
+
+### For more visit our [Computer Vision Tutorials and Examples](http://fiveko.com/tutorials/image-processing/)
+
 ## Input formats:
  - Major image files like: JPEG, PNG, WEBP, BMP, etc. 
  - Major Video files
@@ -66,4 +67,4 @@ fivekogfx.rgb2gray();
 fivekogfx.draw(canvas);
 ``` 
 
- # [More Tutorials and Examples](http://fiveko.com/tutorials/image-processing/)
+ 
