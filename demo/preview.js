@@ -15,23 +15,10 @@ window.addEventListener('load', function(e) {
 	if (!preview)
 		return;
 
-	var gFilter = null;
 	var image = new Image;
-	var gSource = image;
 	var canvas = document.createElement('canvas');
-	//canvas.display = "inline";
+	preview.insertBefore(canvas, preview.firstChild);
 	
-	function addCss(cssCode) {
-	var styleElement = document.createElement("style");
-	  styleElement.type = "text/css";
-	  if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = cssCode;
-	  } else {
-		styleElement.appendChild(document.createTextNode(cssCode));
-	  }
-	  document.getElementsByTagName("head")[0].appendChild(styleElement);
-	}
-
 	function resizeCanvas(source){
 		const maxWidth = 480;
 		var maxSize = (document.documentElement.clientWidth > maxWidth ? maxWidth : (document.documentElement.clientWidth - 100));
@@ -42,7 +29,7 @@ window.addEventListener('load', function(e) {
 		canvas.height = sourceHeight*scale;
 	}
 	
-	function loadVideo(url, callback){
+	function loadVideo(stream, callback){
 		var video = document.getElementsByTagName('video')[0];
 		if (!video){
 			var intervalID;
@@ -59,40 +46,57 @@ window.addEventListener('load', function(e) {
 				resizeCanvas(video);
 				clearInterval(intervalID);
 				intervalID = setInterval(function(){
-					gFilter.update();
+					document.getElementById('cmbFilters').getFilter().update();
 				}, 30);
 			}
 			video = document.createElement('video');
 			video.addEventListener('canplaythrough', startVideo, true);
 			video.addEventListener('ended', videoDone, true);
 			canvas.onclick = function(){
-				((video.paused /*&& gSource == video*/) ? startVideo() : stopVideo());
+				((video.paused) ? startVideo() : stopVideo());
 			};
 		}
-		gSource = video;
-		video.src = url;
-		//video.autoPlay = true;
-		
-		
+		// Older browsers may not have srcObject
+		if ("srcObject" in video) {
+			video.srcObject = stream;
+		} else {
+			// Avoid using this in new browsers, as it is going away.
+			window.URL.revokeObjectURL(video.src);
+			video.src = window.URL.createObjectURL(stream);
+		}
+		window.redraw = function(){
+			canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+		}
 	}
-	function loadImage(url, callback){
+	function loadImage(source, callback){
 		image.onload = function() {
-			resizeCanvas(image);
-			canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+			resizeCanvas(this);
+			canvas.getContext('2d').drawImage(this, 0, 0, canvas.width, canvas.height);
 			callback();
 		}
-		if (url) { image.src = url; } else { callback(); }
-		gSource = image;
+		window.redraw = function(){
+			canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+		}
+		if (source) {
+			if (typeof source === 'string') { // Handle URL source
+				image.src = source; 
+			} else {  // Handle File
+				window.URL.revokeObjectURL(image.src);
+				image.src = window.URL.createObjectURL(source);
+			}
+		} else {
+			callback(); 
+		}
 	}
 	
 	function handleFiles(e){
-		var url = URL.createObjectURL(e.target.files[0]);
-		var type = e.target.files[0].type;
+		//var url = URL.createObjectURL(e.target.files[0]);
+		const file = e.target.files[0];
+		var type = file.type;
 		var func = (type.substring(0, "image".length) == "image") ? loadImage : 
 					(type.substring(0, "video".length) == "video") ? loadVideo : null;
 		if (func){
-			func(url, function(){
-				URL.revokeObjectURL(url);
+			func(file, function(){
 				document.getElementById('cmbFilters').onchange();
 			});
 		}
@@ -112,75 +116,49 @@ window.addEventListener('load', function(e) {
 	
 	addcss(".input-group-addon.title{min-width:120px;}.input-group-addon.value{width:60px;}");
 	
-	var panel = document.createElement('div');
-	var inputFile = document.createElement('input');
-	var cmdUpload = document.createElement('button');
-	//var cmdDownload = document.createElement('button');
-	var cmdWebCam = document.createElement('button');
-	var cmbFilters = document.createElement('select');
-	inputFile.setAttribute("type", "file");
-	inputFile.style.display = 'none';
-	inputFile.addEventListener('change', handleFiles);
-	//cmdDownload.textContent = "Download";
-	cmdWebCam.textContent = "Camera";
-	cmdWebCam.style.margin = "10px";
-	cmdWebCam.style.width = "100px";
-	cmdUpload.textContent = "Browse";
-	cmdUpload.style.margin = "10px";
-	cmdUpload.style.width = "100px";
-	//
-	cmdUpload.onclick = function(){
-		inputFile.click();
-		//alert("TEST");
-		return false;
-	}
-	/*cmdDownload.onclick = function(){
-		downloadImage();
-		return false;
-	}*/
-	
-	cmdWebCam.onclick = function(){
-		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || 
-								navigator.mozGetUserMedia || navigator.msGetUserMedia || 
-								navigator.oGetUserMedia;
-		  if (navigator.getUserMedia) {
-			// get webcam feed if available
-			navigator.getUserMedia({video: true}, function(stream){
-				var url = window.URL.createObjectURL(stream);
-				loadVideo(url, function(){
-					URL.revokeObjectURL(url);
+	function createPanel(){
+		var panel = document.createElement('div');
+		
+		panel.innerHTML = '<input type="file" style="display: none;"><button data-role="browse" style="margin: 10px; width: 100px;">Browse</button><button data-role="camera" style="margin: 10px; width: 100px;">Camera</button><select id="cmbFilters"></select>';
+		// Hook events to panel controls 
+		panel.querySelector('input[type=file]').addEventListener('change', handleFiles);
+		panel.querySelector('button[data-role=browse]').addEventListener('click', function(){
+			panel.querySelector('input[type=file]').click();
+		});
+		
+		panel.querySelector('button[data-role=camera]').addEventListener('click', function(){
+			navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || 
+									navigator.mozGetUserMedia || navigator.msGetUserMedia || 
+									navigator.oGetUserMedia;
+			  if (navigator.getUserMedia) {
+				// get webcam feed if available
+				navigator.getUserMedia({video: true}, function(stream){
+					loadVideo(stream, function(){
+						console.log("Camera stream started!");
+					});
+				}, function(e){
+					alert("Failed to initialize camera!");
 				});
-			}, function(e){
-				alert("Failed to initialize camera!");
-			});
-		  }
+			}
+		});
+		
+		preview.insertBefore(panel, preview.firstChild);
 	}
 	
+	createPanel();
+	
+	
+	var cmbFilters = document.getElementById('cmbFilters');
 	cmbFilters.onchange = function(){
 		document.getElementById("controls").innerHTML = "";
-		var filter = this.options[this.selectedIndex].filter;
-		gFilter = this.options[this.selectedIndex].filter;
-		filter.init();
+		this.getFilter().init();
 		//filter.update();
 		return false;
 	}
 	
-	cmbFilters.id= "cmbFilters";
-	preview.insertBefore(canvas, preview.firstChild);
-	preview.insertBefore(panel, preview.firstChild);
-	panel.appendChild(inputFile);
-	panel.appendChild(cmdUpload);
-	panel.appendChild(cmdWebCam);
-	panel.appendChild(cmbFilters);
-
-		
-	window.reloadImage = function(){
-		var ctx = canvas.getContext('2d');
-		ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-	}
-	
-	window.redraw = function(){
-		canvas.getContext('2d').drawImage(gSource/*image*/, 0, 0, canvas.width, canvas.height);
+	// Retrieve the current drop-down filter
+	cmbFilters.getFilter = function(){
+		return this.options[this.selectedIndex].filter;
 	}
 	
 	function Filter(name, init, update, reset) {
@@ -226,6 +204,7 @@ window.addEventListener('load', function(e) {
 	}
 	window.addFilter = addFilter;
 	window.Filter = Filter;
+	window.loadImage = loadImage;
 	window.createSlider = function(container, name, title, value, min, max, step, callback){
 		var holder = document.createElement('div');
 		var txtTemplate = '<div class="input-group" style="max-width:420px; margin:auto;">' +
@@ -284,19 +263,22 @@ window.addEventListener('load', function(e) {
 	}
 	
 	// Finalize
-	{
+	onLoadedGFX();
+	
+}, true);
+
+function onLoadedGFX(){
+	var preview = document.querySelector('div[data-role=preview]');
+	if (preview){
 		var src = preview.getAttribute("data-source");
 		var cbkName = preview.getAttribute("data-callback");
-		//var loadImage = ((preview.getAttribute('data-type') == 'webgl') ? loadImage2d/*loadImageWebGL*/ : loadImage2d);
-		
-		loadImage(src, function(){
+		var canvas = preview.querySelector('canvas');
+		window.loadImage(src, function(){
 			window[cbkName](canvas, canvas);
 			cmbFilters.onchange();
 			if (cmbFilters.options.length === 1){
 				cmbFilters.style.display = 'none';
 			}
 		});
-		
 	}
-	
-}, true);
+}

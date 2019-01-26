@@ -23,7 +23,7 @@
 	
 	<div style="text-align: center;" data-role="preview" data-type="webgl" data-source="" data-callback="initPreview">
 		<div id="controls"></div>
-		<div id="log">Sigma: 3</div>
+		<div id="log">Elapsed: 0</div>
 	</div>
 	<hr />
 	<div style="text-align: center;">
@@ -42,9 +42,8 @@
 				redraw();
 				fivekogfx.load(source);
 			}
-						
+			
 			addFilter(new Filter("Original", function(){
-				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
 			}, function(){
 			}, reset));
 			
