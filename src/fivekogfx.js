@@ -38,7 +38,6 @@ function FivekoGFX(canvasSource){
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
-		gl.getExtension('OES_texture_float');
 		// Flip the image's Y axis to match the WebGL texture coordinate space.
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		
@@ -142,12 +141,21 @@ function FivekoGFX(canvasSource){
 		
 		canvas.width = width;
 		canvas.height = height;
-		
+		if (this.originalImageTexture){
+			for (var i = 0; i < this.textures.length; i++){
+				gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 
+							canvas.width, canvas.height, 0, 
+							gl.RGBA, this.texType, null);
+			}
+			return;
+		}
 		/*var canvasBuffer = document.createElement('canvas');
 		canvasBuffer.width = canvas.width;
 		canvasBuffer.height = canvas.height;
 		this.canvasBuffer = canvasBuffer;*/
 		this.originalImageTexture = createTexture(gl);
+		this.texType = ((gl.getExtension('OES_texture_float')) ? gl.FLOAT : gl.UNSIGNED_BYTE);
 		
 		// create 2 textures and attach them to framebuffers.
 		var textures = [];
@@ -158,8 +166,8 @@ function FivekoGFX(canvasSource){
 
 			// make the texture the same size as the image
 			gl.texImage2D(
-				gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height/*image.width, image.height*/, 0,
-				gl.RGBA, gl.FLOAT, null);
+				gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0,
+				gl.RGBA, this.texType, null);
 
 			// Create a framebuffer
 			var fbo = gl.createFramebuffer();
