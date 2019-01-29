@@ -47,7 +47,7 @@ window.addEventListener('load', function(e) {
 				clearInterval(intervalID);
 				intervalID = setInterval(function(){
 					document.getElementById('cmbFilters').getFilter().update();
-				}, 30);
+				}, 40);
 			}
 			video = document.createElement('video');
 			video.addEventListener('canplaythrough', startVideo, true);
@@ -57,13 +57,14 @@ window.addEventListener('load', function(e) {
 			};
 		}
 		// Older browsers may not have srcObject
-		if ("srcObject" in video) {
+		try {
 			video.srcObject = stream;
-		} else {
+		} catch (error) {
 			// Avoid using this in new browsers, as it is going away.
 			window.URL.revokeObjectURL(video.src);
 			video.src = window.URL.createObjectURL(stream);
 		}
+		
 		window.redraw = function(){
 			canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
 		}
