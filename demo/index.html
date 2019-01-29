@@ -54,6 +54,22 @@
 				fivekogfx.draw(canvas);
 			}, reset));
 			
+			addFilter(new Filter("Erosion", function(){
+				this.add(createSlider(controls, "sizeSlider", "Size", 3, 1, 31, 2, this.update.bind(this)));
+			}, function(size){
+				fivekogfx.erosion(size);
+				fivekogfx.draw(canvas);
+			}, reset));
+			
+			addFilter(new Filter("Dilation", function(){
+				this.add(createSlider(controls, "sizeSlider", "Size", 3, 1, 31, 2, this.update.bind(this)));
+			}, function(size){
+				
+				fivekogfx.dilation(size);
+				fivekogfx.draw(canvas);
+				
+			}, reset));
+			
 			addFilter(new Filter("Gaussian Blur", function(){
 				this.add(createSlider(controls, "sigmaSlider", "Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
 			}, function(sigma){
@@ -71,7 +87,7 @@
 			addFilter(new Filter("Sobel", function(){
 				this.add(createSlider(controls, "sigmaSlider", "Gauss Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
 			}, function(sigma){
-				fivekogfx.blur(sigma);
+				fivekogfx.gauss(sigma);
 				fivekogfx.sobel();
 				fivekogfx.draw(canvas);
 			}, reset));
@@ -90,7 +106,7 @@
 				this.add(createSlider(controls, "sizeSlider", "Size", 20, 0, 100, 5, this.update.bind(this)));
 				this.add(createSlider(controls, "sigmaSlider", "SigmaSobel", 1.5, 0, 10, 0.5, this.update.bind(this)));
 			}, function(radius, sigma){
-				fivekogfx.blur(sigma);
+				fivekogfx.gauss(sigma);
 				fivekogfx.sobel();
 				fivekogfx.houghCircle(radius);
 				fivekogfx.draw(canvas);
@@ -166,7 +182,6 @@
 				fivekogfx.rgb2ycbcr();
 				fivekogfx.draw(canvas);
 			}, reset));
-
 			addFilter(new Filter("RGB to HSL", function(){
 			}, function(){
 				fivekogfx.rgb2hsl();
@@ -179,7 +194,6 @@
 				fivekogfx.skinMask();
 				fivekogfx.draw(canvas);
 			}, reset));
-
 			addFilter(new Filter("Equalize", function(){
 			}, function(){
 				fivekogfx.rgb2grey();
