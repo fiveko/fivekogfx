@@ -113,7 +113,7 @@
 			}, reset));
 			
 			addFilter(new Filter("SymmenticNN", function(){
-				this.add(createSlider(controls, "sizeSlider", "Size", 3, 0, 10, 1, this.update.bind(this)));
+				this.add(createSlider(controls, "sizeSlider", "Size", 3, 3, 15, 2, this.update.bind(this)));
 				this.add(createSlider(controls, "countSlider", "Count", 1, 0, 10, 1, this.update.bind(this)));
 			}, function(size, count){
 				fivekogfx.symmetricnn(parseInt(size), parseInt(count));
