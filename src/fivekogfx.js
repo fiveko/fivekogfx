@@ -1,15 +1,22 @@
 /*!
- * 
+ * @file fivekogfx.js
+ * @brief Fiveko Graphics library 
+ * The FivekoGFX library is based on OpenGL/WebGL and HTML5 technolgies
+ *
+ * @defgroup FivekoGFX Fiveko Graphics
+ *
  * Copyright (c) 2017 fiveko.com
  * See the LICENSE file for copying permission.
  */
-"use strict";
 
+"use strict";
+/**
+\cond HIDDEN_SYMBOLS
+*/
 function FivekoGFX(canvasSource){
 	
 	function getWebGLContext(canvas){
 		try {
-			
 			return (canvas.getContext("webgl", {premultipliedAlpha: false}) || canvas.getContext("experimental-webgl", {premultipliedAlpha: false}));
 		}
 		catch(e) {
@@ -61,8 +68,10 @@ function FivekoGFX(canvasSource){
 		var gl = this.gl,
 			shaderProgram = this.programs[name];
 		
-		if (shaderProgram)
+		if (shaderProgram){
+			gl.useProgram(shaderProgram);
 			return shaderProgram;
+		}
 		
 		function createShader(type, source){
 			var shader = gl.createShader(type); // gl.FRAGMENT_SHADER or gl.VERTEX_SHADER
@@ -77,15 +86,15 @@ function FivekoGFX(canvasSource){
 				alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));  
 				return null;  
 			}
-
+			
 			return shader;
 		}
 		
 		var vertexShader, fragmentShader;
 		
 		if (!vertexSource){
-			vertexShader = createShader(gl.VERTEX_SHADER,   "attribute vec2 a_position;                     \
-															void main() { gl_Position = vec4(a_position, 0.0, 1.0); }"
+			vertexShader = createShader(gl.VERTEX_SHADER,   `attribute vec2 a_position;
+															void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`
 															);
 		} else {
 			vertexShader = createShader(gl.VERTEX_SHADER, vertexSource);
@@ -98,13 +107,13 @@ function FivekoGFX(canvasSource){
 		gl.linkProgram(shaderProgram);
 
 		// If creating the shader program failed, alert
-
 		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 			alert("Unable to initialize the shader program.");
 		} else {
 			this.programs[name] = shaderProgram;
 		}
 		
+		gl.useProgram(shaderProgram);
 		return shaderProgram;
 	}
 	
@@ -150,10 +159,7 @@ function FivekoGFX(canvasSource){
 			}
 			return;
 		}
-		/*var canvasBuffer = document.createElement('canvas');
-		canvasBuffer.width = canvas.width;
-		canvasBuffer.height = canvas.height;
-		this.canvasBuffer = canvasBuffer;*/
+		
 		this.originalImageTexture = createTexture(gl);
 		this.texType = ((gl.getExtension('OES_texture_float')) ? gl.FLOAT : gl.UNSIGNED_BYTE);
 		
@@ -248,15 +254,14 @@ function FivekoGFX(canvasSource){
 	
 	FivekoGFX.prototype.draw = function(canvas){
 		var gl = this.gl;
-		//var program = this.loadShaders(["2d-vertex-shader", "draw-fragment-shader"]);
-		var program = this.createProgram("draw", "precision mediump float;                                   \
-													uniform sampler2D u_image;                                  \
-													uniform vec2 u_textureSize;                                 \
-													void main() {                                               \
-														vec2 textCoord = gl_FragCoord.xy / u_textureSize;       \
-														gl_FragColor = texture2D(u_image, textCoord/*vec2(textCoord.x, 1.0 - textCoord.y)*/ );          \
-													}                                                           ");
-		gl.useProgram(program);
+		var program = this.createProgram("draw", `precision mediump float;
+													uniform sampler2D u_image;
+													uniform vec2 u_textureSize;
+													void main() {
+														vec2 textCoord = gl_FragCoord.xy / u_textureSize;
+														gl_FragColor = texture2D(u_image, textCoord);
+													}`);
+		
 		render(gl, program, null);
 		this.count = 0;
 		
@@ -375,7 +380,8 @@ FivekoGFX.prototype.loadShaders = function(shaders){
 		alert("Unable to initialize the shader program.");
 	}
 
-	//gl.useProgram(shaderProgram);
-
 	return shaderProgram;
 }
+/**
+ \endcond
+*/
