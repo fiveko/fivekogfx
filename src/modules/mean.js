@@ -1,6 +1,12 @@
 /**
+ * @file mean.js
+ * @brief Mean smooth filters
  * Mean and Box filter GLSL shaders
- * Copyright (c) 2017 fiveko.com
+ *
+ * @ingroup SpatialFilters
+ *
+ * \copyright
+ * Copyright (c) 2017-2019 fiveko.com .
  * See the LICENSE file for copying permission.
  */
  
@@ -51,13 +57,38 @@ void main() {
 	gl_FragColor = meanColor / float(KERNEL_SIZE);
 }`;
 
-
+/**
+ * Low-pass mean filter
+ * This filter performs <b>GPU</b> based separable mean filter by <em>OpenGL/WebGL</em> shader.
+ * 
+ *
+ * @ingroup SpatialFilters
+ * @param {uint} size - window size
+ *
+ * @par Math theory
+ *  @li Mean blur with 3x3 kernel size:
+ * \f$\displaystyle{K}=\frac{1}{{9}}{\left[\begin{matrix}{1}&{1}&{1}\\{1}&{1}&{1}\\{1}&{1}&{1}\end{matrix}\right]}=\frac{1}{{3}}{\left[\begin{matrix}{1}&{1}&{1}\end{matrix}\right]}\ast\frac{1}{{3}}{\left[\begin{matrix}{1}\\{1}\\{1}\end{matrix}\right]}\f$
+ *
+ * @par Example code
+ * @code{.js}
+  var fivekogfx = new FivekoGFX();
+  fivekogfx.load(canvas);
+  fivekogfx.mean(5); // e.g. Window size = 5
+  fivekogfx.draw(canvas);
+ * @endcode
+ * @par Example image result
+ * @image html mean_ex.jpg "Mean blur example image with window size 5"
+ * @par External resources
+ * @li <a href="http://fiveko.com/tutorials/image-processing/mean-filter-for-fast-noise-reduction/">Mean Filter Tutorial</a> 
+ * 
+ * @see gauss
+*/
 filters.prototype.mean = function(size) {
 	const kernelSize = parseInt(size) + !(size & 1); // Make it odd if not
 	var gl = this.gl;
 	var program = this.createProgram("mean_size_" + kernelSize, 
 					shaderSoruce.replace(/%kernelSize%/g, kernelSize));
-	gl.useProgram(program);
+	
 	var directionLocation = gl.getUniformLocation(program, "u_direction");
 	// Split rows and cols
 	gl.uniform2fv(directionLocation, [0, 1]);
@@ -66,14 +97,19 @@ filters.prototype.mean = function(size) {
 	this.execute(program);
 }
 
-// Iterative blur using mean filter 
-// iterations count is calculated using sigma param
+/**
+ * Iterative blur using mean filter. Number of iterations is calculated based on @em sigma parameter.
+ *
+ * @ingroup SpatialFilters
+ * @param {float} sigma - standart deviation converted for iterations count
+ *
+ * @see mean gauss
+ */
 filters.prototype.blur = function(sigma) {
 	var count = ~~Math.min((12*sigma*sigma) / (3*3-1), 100);
 	var gl = this.gl;
 	var program = this.createProgram("blur3x3", shaderSoruce3x3);
 	
-	gl.useProgram(program);
 	for (var i = 0; i < count; i++){
 		this.execute(program);
 	}

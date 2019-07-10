@@ -1,5 +1,12 @@
 /**
- * Copyright (c) 2017 fiveko.com
+ * @file symmetricnn.js
+ * @brief Symmetric Nearest Neighbour filter
+ *
+ *
+ * @ingroup SpatialFilters
+ *
+ * \copyright
+ * Copyright (c) 2017-2019 fiveko.com .
  * See the LICENSE file for copying permission.
  */
  
@@ -36,7 +43,26 @@ void main() {
 	gl_FragColor = meanColor / float(KERNEL_SIZE*(HALF_SIZE + 1));
 }`;
 
-
+/**
+ * Implements Symmetric Nearest Neighbor filter using @b GPU by @em OpenGL/WebGL fragment shader
+ * 
+ * @ingroup SpatialFilters
+ *
+ * @param {uint} size - window size
+ * @param {uint} count - number of iterations
+ *
+ * @par Overview
+ * The filter uses a sliding window placed at each image pixel to perform non-linear edge preserving filtration. 
+ * Pixels under the window are divided into oppoiste/symmetric pairs and 
+ * from each of them the pixel closest to the central one is used to calc the mean value of the region.
+ * @image html symmetricnn.png "Symmetric Nearest Neighbor pixel selection: green – central pixel; red – opposite pixels"
+ * @par Example image result
+ * @image html symmetricnn_ex.jpg "Symmetric Nearest Neighbor window size 10 and count 1"
+ * @par External resources
+ * @li <a href="http://fiveko.com/tutorials/image-processing/symmetric-nearest-neighbor-filter/">Symmetric NN Tutorial</a> 
+ *
+ * @see median
+*/
 filters.prototype.symmetricnn = function(size, count) {
 	var params = this.params["symmetricnn"];
 	size += !(size & 1); // Make the size odd
@@ -46,7 +72,6 @@ filters.prototype.symmetricnn = function(size, count) {
 	this.params["symmetricnn"] = {size: size};
 	var gl = this.gl;
 	var program = this.createProgram("symmetricnn", shaderSource.replace(/%kernelSize%/g, size));
-	gl.useProgram(program);
 	
 	for (var i =0; i < count; i++)
 	{

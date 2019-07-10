@@ -1,9 +1,22 @@
 /**
+ * @file conv.js
+ * @brief Generic Convolution GLSL Shaders
  * Generic Convolution GLSL Shaders
+ *
+ * @ingroup Convolution
+ *
+ *
+ * \copyright
  * Copyright (c) 2017 fiveko.com
  * See the LICENSE file for copying permission.
  */
- 
+
+/**
+ * @defgroup Convolution Generic Convolution Tools
+ * @{   
+ *     OpenGL shaders for convolution filters
+ * @}
+ */
 "use strict";
 
 (function(filters) {
@@ -60,10 +73,12 @@ function scaleKernel(kernel){
 	return kernel.map(a => (a / sum));
 }
 
-/* 
+/** 
  * Make a convolution with a 2D kernel.
  * The kernel will be directly scaled by scaleKernel
-*/ 
+ * @ingroup Convolution
+ * @param {array} kernel - 2D convolution kernel
+*/
 filters.prototype.conv2d = function(kernel) {
 	const kernelSize = ~~Math.sqrt(kernel.length);
 	var gl = this.gl;
@@ -76,18 +91,20 @@ filters.prototype.conv2d = function(kernel) {
 	this.execute(program);
 }
 
+///< Enumeration for 1D convolution type
 var CONV_TYPE = {
-	ROWS: 0x01,
-	COLS: 0x02,
-	ALL:  0x03 // (CONV_ROWS | CONV_COLS)
+	ROWS: 0x01, ///< Rows convolution
+	COLS: 0x02, ///< Cols convolution
+	ALL:  0x03  ///< Separable 2D convolution (CONV_ROWS | CONV_COLS)
 };
 
-/* 
+/**
  * Make a convolution with a 1D separable kernel.
- * The kernel will be directly scaled by scaleKernel
+ * The kernel will be directly scaled by scaleKernel.
  * The convolution is performed by rows and cols separable
- * kernel - the kernel 1D vector
- * convType - CONV_TYPE such as COLS wise, ROWS wise or both
+ * @ingroup Convolution
+ * @param {array} kernel - the kernel 1D vector
+ * @param {CONV_TYPE} convType - CONV_TYPE such as COLS wise, ROWS wise or both
 */ 
 filters.prototype.conv1d = function(kernel, convType) {
 	const kernelSize = kernel.length + !(kernel.length & 1); // Make sure it is odd
