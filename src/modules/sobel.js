@@ -23,6 +23,22 @@
 
 (function(filters) {
 
+const shaderGradientDefault = `
+vec4(vec3(length(vec2(dx, dy))), 1.0);
+`
+
+const shaderGradientNMS = `
+vec4(length(vec2(dx, dy)), ((atan(dy, dx) + M_PI) / (2.0*M_PI)), 0.0, 1.0);
+`
+
+const shaderGradientHorizontal = `
+vec4(vec3(dy), 1.0);
+`
+
+const shaderGradientVertical = `
+vec4(vec3(dx), 1.0);
+`
+
 const shaderSource = `
 precision mediump float;
 
@@ -51,9 +67,7 @@ void main() {
 				GET_PIXEL(0, +1)*u_kernel[1] +
 				GET_PIXEL(+1, +1)*u_kernel[2]));
 
-   ///gl_FragColor = vec4(vec3(length(vec2(dx, dy))), 1.0);
-   float theta = (atan(dy, dx) + M_PI) / (2.0*M_PI);
-   gl_FragColor = vec4(length(vec2(dx, dy)), theta, 0.0, 1.0);
+   gl_FragColor = %Mode%;
 }`;
 
 const shaderSourceNMS = `
@@ -92,15 +106,36 @@ function applyNMS(self){
 	self.execute(program);
 }
 
-function apply(self, kernel){
+filters.GRADIENT = {
+	DEFAULT: 0,
+	NMS: 1,
+	HORIZONTAL: 2,
+	VERTICAL: 3
+}
+
+function getShaderByMode(mode){
+	switch (mode)
+	{
+		case filters.GRADIENT.DEFAULT: return shaderGradientDefault;
+		case filters.GRADIENT.NMS: return shaderGradientNMS;
+		case filters.GRADIENT.HORIZONTAL: return shaderGradientHorizontal;
+		case filters.GRADIENT.VERTICAL: return shaderGradientVertical;
+	}
+	return shaderGradientDefault;
+}
+
+function apply(self, kernel, mode){
 	var gl = self.gl;
-	var program = self.createProgram("sobel", shaderSource);
+	var program = self.createProgram("gradient-" + mode, 
+					shaderSource.replace(/%Mode%/g, getShaderByMode(mode)));
 	
 	var kernelLocation = gl.getUniformLocation(program, "u_kernel[0]");
 	gl.uniform1fv(kernelLocation, kernel);
 	
 	self.execute(program);
-	applyNMS(self);
+	if (filters.GRADIENT.NMS === mode){
+		applyNMS(self);
+	}
 }
 
 /** 
@@ -125,10 +160,11 @@ function apply(self, kernel){
  * @par External resources
  * @li <a href="http://fiveko.com/tutorials/image-processing/sobel-filter/">Sobel Filter Tutorial</a> 
  * 
+ * @param mode - the gradeint mode
  * @see schaar
 */
-filters.prototype.sobel = function() {
-	apply(this, [1, 2, 1]);
+filters.prototype.sobel = function(mode) {
+	apply(this, [1, 2, 1], mode);
 }
 
 
@@ -144,10 +180,16 @@ filters.prototype.sobel = function() {
  * @li \f$\displaystyle{G}{x}={\left[\begin{matrix}+{3}&{0}&-{3}\\+{10}&{0}&-{10}\\+{3}&{0}&-{3}\end{matrix}\right]}\f$
  * @li \f$\displaystyle{G}{y}={\left[\begin{matrix}+{3}&+{10}&+{3}\\{0}&{0}&{0}\\-{3}&-{10}&-{3}\end{matrix}\right]}\f$
  *
+ * @param mode - the gradeint mode
  * @see sobel
 */
-filters.prototype.schaar = function() {
-	apply(this, [3, 10, 3]);
+filters.prototype.schaar = function(mode) {
+	apply(this, [3, 10, 3], mode);
 }
+
+filters.prototype.prewitt = function(mode) {
+	apply(this, [1, 1, 1], mode);
+}
+
 
 })(window.FivekoGFX);
