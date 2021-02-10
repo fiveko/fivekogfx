@@ -30,7 +30,7 @@
 		<b><a href="http://fiveko.com/tutorials/dip" target="_blank">Image Processing Tutorials</a></b>
 	</div>
 	<!-- ====================== JavaScript =================== -->
-	<script src="./preview.min.js"></script>
+	<script src="./preview.js"></script>
 	<script src="../src/fivekogfx.min.js"></script>
 	<script>
 		
@@ -84,11 +84,16 @@
 				fivekogfx.draw(canvas);
 			}, reset));
 			
-			addFilter(new Filter("Sobel", function(){
+			addFilter(new Filter("Gradient", function(){
+				var filters = ["Prewitt", "Sobel", "Schaar"];
+				var modes = ["Generic", "Generic with NMS", "Horizontal", "Vertical"];
 				this.add(createSlider(controls, "sigmaSlider", "Gauss Sigma", 1.5, 0, 10, 0.5, this.update.bind(this)));
-			}, function(sigma){
+				this.add(createDropdown(controls, "Filter", "Filter", filters, this.update.bind(this)));
+				this.add(createDropdown(controls, "Mode", "Mode", modes, this.update.bind(this)));
+			}, function(sigma, filter, mode){
+				var fnFilter = ((filter == 1) ? "prewitt" : (filter == 2) ? "sobel" : "schaar");
 				fivekogfx.gauss(sigma);
-				fivekogfx.sobel();
+				fivekogfx[fnFilter](mode - 1);
 				fivekogfx.draw(canvas);
 			}, reset));
 			
