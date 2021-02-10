@@ -24,7 +24,8 @@
 			reset.call(this);
 			var values = [];
 			for (var i = 0; i < this.controls.length; i++){
-				values.push(parseFloat(this.controls[i].value));
+				var value = this.controls[i].value;
+				values.push((typeof value === 'string') ? parseFloat(value) : value);
 			}
 			update.apply(this, values);
 			var endTime = new Date();
