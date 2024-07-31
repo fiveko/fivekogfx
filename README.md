@@ -1,7 +1,10 @@
 # fivekogfx
-FivekoGFX ([Fiveko Graphics](http://fiveko.com/projects/fivekogfx-image-processing-library/)) is a tiny Image Processing Library. The main code base of FivekoGFX is written in JavaScript and OpenGL shaders (GLSL). FivekoGFX is a web-based image processing lib and it tries to provide optimal solutions and take advantage of the GPU power (where possible). 
 
-You are also wlcome to visit [fiveko.com](http://fiveko.com/).
+**This repository is archived and no longer maintained.**
+
+FivekoGFX ([Fiveko Graphics](https://fiveko.com/projects/fivekogfx-image-processing-library/)) is a tiny Image Processing Library. The main code base of FivekoGFX is written in JavaScript and OpenGL shaders (GLSL). FivekoGFX is a web-based image processing lib and it tries to provide optimal solutions and take advantage of the GPU power (where possible). 
+
+You are also wlcome to visit [fiveko.com](https://fiveko.com/).
 
 # Features
 ## Different image processing filters and transformations like:
@@ -12,7 +15,7 @@ You are also wlcome to visit [fiveko.com](http://fiveko.com/).
 - Symmetric Nearest Neighbour filter (Symmetric NN)
 - Hough transform
 - Watershed trasnform (currently Meyer's flooding algorithm)
- [<img src="assets/Watershed.png?raw=true" title="Meyer's flooding algorithm">](http://fiveko.com/tutorials/image-processing/watershed-image-segmentation/)
+ [<img src="assets/Watershed.png?raw=true" title="Meyer's flooding algorithm">](https://fiveko.com/watershed-image-segmentation/)
  
 - Color space conversions (e.g. RGB <-> YCbCr, RGB to Grayscale, RGB to HSL, etc)
 - Color tracking by Back Projection
@@ -20,7 +23,7 @@ You are also wlcome to visit [fiveko.com](http://fiveko.com/).
 - Cartesian plane to Log-Polar image transform
 - Local Binary Patterns (LBP)
 
-### For more visit our [Computer Vision Tutorials and Examples](http://fiveko.com/tutorials/image-processing/)
+### For more visit our [Computer Vision Tutorials and Examples](https://fiveko.com/tag/image-processing/)
 
 ## Input formats:
  - Major image files like: JPEG, PNG, WEBP, BMP, etc. 
